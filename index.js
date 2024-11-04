@@ -94,6 +94,29 @@ app.put("/users/:id", async (req, res, next) => {
   }
 });
 
+// ---> delete  user by id
+app.delete("/users/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const user = await pool.query(
+      "DELETE FROM users  WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (user.rows.length === 0) {
+      res.status(404).json({ success: false, message: "User not found." });
+      return;
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "User deleted.", user: user.rows[0] });
+  } catch (error) {
+    next(error);
+  }
+});
+
 /** ---> Handling not found 404 routes */
 app.use("*", (req, res) => {
   res.status(404).json({ success: false, message: "Route not found." });
