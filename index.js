@@ -72,6 +72,27 @@ app.get("/users/:id", async (req, res, next) => {
   }
 });
 
+// ---> update  user by id
+app.put("/users/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, email, age } = req.body;
+
+    const user = await pool.query(
+      "UPDATE users set name = $1, email = $2, age = $3 WHERE id = $4 RETURNING *",
+      [name, email, age, id]
+    );
+    if (user.rows.length === 0) {
+      res.status(404).json({ success: false, message: "User not found." });
+    }
+    res
+      .status(200)
+      .json({ success: true, message: "User fetched.", user: user.rows[0] });
+  } catch (error) {
+    next(error);
+  }
+});
+
 /** ---> Handling not found 404 routes */
 app.use("*", (req, res) => {
   res.status(404).json({ success: false, message: "Route not found." });
