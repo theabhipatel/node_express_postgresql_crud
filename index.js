@@ -84,6 +84,7 @@ app.put("/users/:id", async (req, res, next) => {
     );
     if (user.rows.length === 0) {
       res.status(404).json({ success: false, message: "User not found." });
+      return;
     }
     res
       .status(200)
