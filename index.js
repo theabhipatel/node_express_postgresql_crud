@@ -56,6 +56,22 @@ app.get("/users", async (req, res, next) => {
   }
 });
 
+// ---> get  user by id
+app.get("/users/:id", async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const user = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
+    if (user.rows.length === 0) {
+      res.status(404).json({ success: false, message: "User not found." });
+    }
+    res
+      .status(200)
+      .json({ success: true, message: "User fetched.", user: user.rows[0] });
+  } catch (error) {
+    next(error);
+  }
+});
+
 /** ---> Handling not found 404 routes */
 app.use("*", (req, res) => {
   res.status(404).json({ success: false, message: "Route not found." });
